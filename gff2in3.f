@@ -155,7 +155,7 @@ c      read(5,*) z
 *
       do l=1,lmax
       lmt=l**2
-      CALL ZSPHAR(L,X,Y,Z,ZLM)
+C      CALL ZSPHAR(L,X,Y,Z,ZLM)
 C--------------------------------------------------------------------
 * ==============
 *  This routine returns complex spherical harmonics in the 
@@ -177,7 +177,7 @@ C--------/---------/---------/---------/---------/---------/---------/--
       enddo
 *
       comega=dcmplx(sg*rvs,0.d0)
-      call gncbess(comega,lmax,jl,djl,nl,dnl)
+      call gnzbess(comega,lmax,jl,djl,nl,dnl)
 *
 ******************    Summation     *******************
       zgrf=(0.d0,0.d0)
