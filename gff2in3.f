@@ -1,6 +1,7 @@
+c$$$      subroutine GFF2IN3(sigma, AK, AR1,AR2, x, y, z, zgrf )
       PROGRAM GFF2IN3
 C--------/---------/---------/---------/---------/---------/---------/--
-C >>> SG,SCALE,LMAX,NCMB,B
+C >>> SIGMA,SCALE,LMAX,NCMB,B
 C <<< ZGRF
 C
 C  Generates the lattice and spherical harmonics and helps you to obtain
@@ -23,34 +24,38 @@ C       The atan() function returns the arc tangent in radians and
 C       the  value  is  mathematically defined to be between -PI/2
 C       and PI/2 (inclusive). 
 C--------/---------/---------/---------/---------/---------/---------/--
-      implicit none 
-      integer lbess,lmax,NYLR,NYLRD,NCMB,NFM,LMAXD,LMDLMD,LMDL,ISTEP,
-     1 LMTD,LMTT
-      logical complex
+      IMPLICIT NONE 
+      INTEGER LBESS,LMAX,lmaxp1, lmaxdp1,NYLR,NYLRD,NCMB,NFM,
+     & LMAXD,LMDLMD,LMDL,ISTEP, LMTD,LMTT, dlmaxdp1
+c$$$      logical complex
 *::: cutoff on bessel functions
-      PARAMETER (istep=1)
+      PARAMETER (ISTEP=1)
 *::: cutoff on bessel functions
-      PARAMETER (lbess=10)
+      PARAMETER (LBESS=10)
 *::: actual cutoff on spherical functions
-      PARAMETER (lmax=10)
+      PARAMETER (LMAX=10)
+      PARAMETER (LMAXP1=LMAX+1)
 *::: macximal cutoff on spherical functions
-      PARAMETER (lmaxd=10)
-*
-      PARAMETER (NYLR=(LMAX+1)**2)
-      PARAMETER (NYLRD=(LMAXD+1)**2,LMTD=NYLRD-1)
+      PARAMETER (LMAXD=10)
+      PARAMETER (LMAXDP1=LMAXD+1)
+*     
+      PARAMETER (NYLR=LMAXP1**2)
+      PARAMETER (NYLRD=LMAXDP1**2)
+      PARAMETER (LMTD=NYLRD-1)
       PARAMETER (LMTT=2*LMTD)
-      PARAMETER (LMDLMD=(LMAX+1)*(2*LMAX+1))
-      PARAMETER (LMDL=(2*LMAXD+1)*(2*LMAXD+1))
+      PARAMETER (LMDLMD=LMAXP1*(2*LMAX+1))
+      PARAMETER (dlmaxdp1=2*LMAXD+1)
+      PARAMETER (LMDL=dlmaxdp1**2)
 *::: cutoff on the number of scatterers per primitive cell
       PARAMETER (NCMB=2)
       PARAMETER (NFM=NCMB*NCMB-NCMB+1)
 *::: if complex lattice than complex.eq.true., else complex.eq.false.
-      PARAMETER (complex=.true.)
+c$$$      PARAMETER (complex=.true.)
 *
       integer ib,ilb,ilm,l,lmt,m,ist,ifl,nbas
-      real*8 sg,xtol,xxtol,pi,rvs,x,y,z,AK(2),b1(2),b2(2),
+      real*8 sigma,xtol,xxtol,pi,rvs,x,y,z,AK(2),b1(2),b2(2),
      1 a0,ra0,rmuf
-      COMPLEX*16 zgrf,zgrt,comega,csg,ci
+      COMPLEX*16 zgrf,zgrt,comega,csigma,ci
       COMPLEX*16 B(LMDLMD,NCMB),DLM(LMDL,NFM),XMAT(NYLRD,NYLRD,NFM) 
       COMPLEX*16 VEC(LMTT,LMTT,NFM) 
       COMPLEX*16 JL(0:lbess),NL(0:lbess),DJL(0:lbess),DNL(0:lbess)
@@ -64,7 +69,7 @@ c$$$      common/xar/     a0              !unit cell area
       DATA PI/3.141592653589793d0/
       DATA CI/(0.0D0,1.0D0)/
 *
-      if(.not.complex) go to 1
+C      if(.not.complex) go to 1
 C  
 C****** DEFINE THE 2D DIRECT AND RECIPROCAL-LATTICE VECTORS ******  
 C
@@ -100,13 +105,13 @@ c$$$      AR2(2)=cos(pi/6.d0)
       end if
 *
 c      write(6,*)'Read in sigma'
-c      read(5,*) sg
-c      sg=2.d0*pi
-c      sg=2.2d0
+c      read(5,*) sigma
+c      sigma=2.d0*pi
+c      sigma=2.2d0
 *
 c      write(6,*)'Read in the x-component of parallel momentum'
 c      read(5,*) AK(1)
-c      AK(1)=sg*sin(pi/4.d0)
+c      AK(1)=sigma*sin(pi/4.d0)
       AK(1)=0.0d0
 *
 c      write(6,*)'Read in the y-component of parallel momentum'
@@ -115,21 +120,21 @@ c      read(5,*) AK(2)
 *
 *
       rmuf= 0.481186509d0
-      sg=2.d0*pi*160.d0/(2200.d0*rmuf)
-      csg=dcmplx(sg,0.d0)
+      sigma=2.d0*pi*160.d0/(2200.d0*rmuf)
+      csigma=dcmplx(sigma,0.d0)
 *
-      call dlsumf2in3(lmax,csg,ak, AR1, AR2, b(1,1))
+      call dlsumf2in3(lmax,csigma,ak, AR1, AR2, b(1,1))
 *
 *
 cd      nbas=1
 cd      call dlmset(lmax)
-cd      call dlmsf2in3(lmax,nbas,csg,ak,dlm) 
+cd      call dlmsf2in3(lmax,nbas,csigma,ak,dlm) 
 *
 cc      do ifl=1,nfm
 cc      call blf2in3(lmax,xmat(1,1,ifl),dlm(1,ifl))
 *
 cc      if (ifl.eq.1) then     !make G_{LL'} from A_{LL'}
-cc       xmat(1,1,1)=xmat(1,1,1)+ci*csg
+cc       xmat(1,1,1)=xmat(1,1,1)+ci*csigma
 cc      end if
 *       
 cc      call GEN2IN3VEC(LMAX,XMAT(1,1,ifl),VEC(1,1,ifl))
@@ -177,7 +182,7 @@ C--------/---------/---------/---------/---------/---------/---------/--
         enddo
       enddo
 *
-      comega=dcmplx(sg*rvs,0.d0)
+      comega=dcmplx(sigma*rvs,0.d0)
       call gnzbess(comega,lmax,jl,djl,nl,dnl)
 *
 ******************    Summation     *******************

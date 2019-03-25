@@ -12,7 +12,7 @@ C     LMAXD       : INTERNAL CUTOFF IN SPHERICAL WAVES EXPANSIONS
 C     LMAX        : THE ACTUAL CUTOFF IN SPHERICAL WAVES EXPANSIONS 
 C     AK(1), AK(2): THE X  AND Y COMPONENTS OF THE  MOMENTUM PARALLEL 
 C                   TO THE SURFACE, REDUCED TO THE 1ST BRILLOUIN ZONE
-C     AR1(2),AR2(2)  : 2D DIRECT-LATTICE BASIS VECTORS
+C     AR1,AR2     : 2D DIRECT-LATTICE BASIS VECTORS
 C     
 C     EMACH IS THE MACHINE ACCURACY.   
 C--------/---------/---------/---------/---------/---------/---------/--  
@@ -38,13 +38,17 @@ C
 C  
 C ..  SCALAR ARGUMENTS  ..  
 C  
-      INTEGER    LMAX  
+      INTEGER, intent(in) ::     LMAX  
       REAL*8     EMACH  
-      COMPLEX*16 KAPPA  
+      COMPLEX*16, intent(in) ::  KAPPA  
 C  
 C ..  ARRAY ARGUMENTS  ..  
 C  
-      REAL*8     AK(2) 
+C     MOMENTUM PARALLEL TO THE SURFACE,
+C     REDUCED TO THE 1ST BRILLOUIN ZONE
+      REAL*8, intent(in) ::   AK(2) 
+C     2D DIRECT-LATTICE BASIS VECTORS
+      REAL*8, intent(in) ::   AR1(2),AR2(2)
 C  
 C ..  LOCAL SCALARS  ..  
 C 
@@ -60,11 +64,10 @@ C ..  LOCAL ARRAYS  ..
 C  
       REAL*8     DENOM(NDEND),R(2),B1(2),B2(2),AKPT(2),FAC(4*LMAXD+1)  
       COMPLEX*16 GKN(LMAX1D),AGK(2*LMAXD+1),XPM(2*LMAXD+1),PREF(LM1SQD)  
-      COMPLEX*16 DLM(LMDLMD)  
+      COMPLEX*16, intent(out) ::  DLM(LMDLMD)  
 C  
 C ..  ARRAYS IN COMMON  ..  
 C  
-      REAL*8    AR1(2),AR2(2)       ! 2D DIRECT-LATTICE BASIS VECTORS
 c      COMMON/X1/AR1,AR2             
 !!!!!!!!!!!!!!!!!!!!!!!!!!
 C  

@@ -28,9 +28,8 @@ CFLAGS =  -g  -C
 OBJ = beschb.o  bess.o  bessik.o  bessjy.o  dlsumf2in3.o  gff2in3.o\
 gnzbess.o chebev.o zbessf.o
 
-# PYSRC = gnzbess.f gnricbessh.f biga.f zbessf.f bessjy.f\
-# bessik.f beschb.f chebev.f bess.f vctharmc.f\
-# readmat.f mediumn.f sordalc.f znsrefind.f zartan.f chew_mod.f 
+PYSRC = beschb.f  bess.f  bessik.f  bessjy.f  chebev.f  dlsumf2in3.f\
+gff2in3.f  gnzbess.f  zbessf.f
 
 #      executable files
 
@@ -38,13 +37,15 @@ gnzbess.o chebev.o zbessf.o
 .f.o:
 	$(CC) $(CFLAGS) $(NAME) -c $< 
 
-all:     lsum
+all:     pydlm
 
 lsum: $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o lsum $(LFLAGS) 
 
 
-# pychew: modchew
-# 	f2py3 -c $(PYSRC) -m chew
+# 
+pydlm: 
+	f2py3 -c $(PYSRC) -m dlmsum
+	# f2py3 -c $(PYSRC) -m dlmsum --opt='-O3'
         
 #***************************************************************
