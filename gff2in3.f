@@ -48,7 +48,7 @@ C--------/---------/---------/---------/---------/---------/---------/--
       PARAMETER (complex=.true.)
 *
       integer ib,ilb,ilm,l,lmt,m,ist,ifl,nbas
-      real*8 sg,xtol,xxtol,pi,rvs,x,y,z,AK(2),ar1(2),ar2(2),b1(2),b2(2),
+      real*8 sg,xtol,xxtol,pi,rvs,x,y,z,AK(2),b1(2),b2(2),
      1 a0,ra0,rmuf
       COMPLEX*16 zgrf,zgrt,comega,csg,ci
       COMPLEX*16 B(LMDLMD,NCMB),DLM(LMDL,NFM),XMAT(NYLRD,NYLRD,NFM) 
@@ -56,9 +56,10 @@ C--------/---------/---------/---------/---------/---------/---------/--
       COMPLEX*16 JL(0:lbess),NL(0:lbess),DJL(0:lbess),DNL(0:lbess)
       COMPLEX*16 ZLM(-LMAX:LMAX),YL(NYLR)
 *
-      common/x1/      ar1,ar2         !direct lattice basis vectors
-      common/xin/     b1,b2           !reciprocal lattice basis vectors
-      common/xar/     a0              !unit cell area
+      REAL*8    AR1(2),AR2(2)       ! 2D DIRECT-LATTICE BASIS VECTORS
+c$$$      common/x1/      ar1,ar2         !direct lattice basis vectors
+c$$$      common/xin/     b1,b2           !reciprocal lattice basis vectors
+c$$$      common/xar/     a0              !unit cell area
 *
       DATA PI/3.141592653589793d0/
       DATA CI/(0.0D0,1.0D0)/
@@ -67,14 +68,14 @@ C--------/---------/---------/---------/---------/---------/---------/--
 C  
 C****** DEFINE THE 2D DIRECT AND RECIPROCAL-LATTICE VECTORS ******  
 C
-c      AR1(1)=1.d0                      ! (100) sc
-c      AR1(2)=0.d0 
-c      AR2(1)=0.d0 
-c      AR2(2)=1.d0 
-      AR1(1)=1.d0 
+      AR1(1)=1.d0                      ! (100) sc
       AR1(2)=0.d0 
-      AR2(1)=cos(pi/3.d0)               ! (111) fcc
-      AR2(2)=cos(pi/6.d0)
+      AR2(1)=0.d0 
+      AR2(2)=1.d0 
+c$$$      AR1(1)=1.d0 
+c$$$      AR1(2)=0.d0 
+c$$$      AR2(1)=cos(pi/3.d0)               ! (111) fcc
+c$$$      AR2(2)=cos(pi/6.d0)
       A0=ABS(AR1(1)*AR2(2)-AR1(2)*AR2(1))  
       RA0=2.D0*PI/A0  
       B1(1)=-AR1(2)*RA0  
@@ -117,7 +118,7 @@ c      read(5,*) AK(2)
       sg=2.d0*pi*160.d0/(2200.d0*rmuf)
       csg=dcmplx(sg,0.d0)
 *
-      call dlsumf2in3(lmax,csg,ak,b(1,1))
+      call dlsumf2in3(lmax,csg,ak, AR1, AR2, b(1,1))
 *
 *
 cd      nbas=1

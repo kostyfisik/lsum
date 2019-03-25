@@ -1,4 +1,4 @@
-      SUBROUTINE dlsumf2in3(LMAX,KAPPA,AK,DLM)  
+      SUBROUTINE dlsumf2in3(LMAX,KAPPA,AK, AR1,AR2, DLM)  
 C--------/---------/---------/---------/---------/---------/---------/--
 C     CALCULATES  NON-ZERO ELEMENTS OF THE ARRAY  DLM 
 C     I.E., FOR L+M EVEN. VALUES AS DEFINED BY KAMBE.
@@ -12,7 +12,8 @@ C     LMAXD       : INTERNAL CUTOFF IN SPHERICAL WAVES EXPANSIONS
 C     LMAX        : THE ACTUAL CUTOFF IN SPHERICAL WAVES EXPANSIONS 
 C     AK(1), AK(2): THE X  AND Y COMPONENTS OF THE  MOMENTUM PARALLEL 
 C                   TO THE SURFACE, REDUCED TO THE 1ST BRILLOUIN ZONE
-C                   
+C     AR1(2),AR2(2)  : 2D DIRECT-LATTICE BASIS VECTORS
+C     
 C     EMACH IS THE MACHINE ACCURACY.   
 C--------/---------/---------/---------/---------/---------/---------/--  
       IMPLICIT NONE 
@@ -89,10 +90,10 @@ C
 C               DEFINE DIRECT AND RECIPROCAL BRAVAIS LATTICES
 C DIRECT-LATTICE BASIS VECTORS:
 
-      AR1(1)=1.d0
-      AR1(2)=0.d0 
-      AR2(1)=0.d0 
-      AR2(2)=1.d0
+c$$$      AR1(1)=1.d0
+c$$$      AR1(2)=0.d0 
+c$$$      AR2(1)=0.d0 
+c$$$      AR2(2)=1.d0
 *
       TV=ABS(AR1(1)*AR2(2)-AR1(2)*AR2(1))  !unit cell surface
 * 
