@@ -1,5 +1,5 @@
-c$$$      subroutine GFF2IN3(sigma, AK, AR1,AR2, x, y, z, zgrf )
-      PROGRAM GFF2IN3
+      subroutine GFF2IN3(sigma, x, y, z, AK, zgrf )
+c$$$      PROGRAM GFF2IN3
 C--------/---------/---------/---------/---------/---------/---------/--
 C >>> SIGMA,SCALE,LMAX,NCMB,B
 C <<< ZGRF
@@ -53,15 +53,30 @@ c$$$      logical complex
 c$$$      PARAMETER (complex=.true.)
 *
       integer ib,ilb,ilm,l,lmt,m,ist,ifl,nbas
-      real*8 sigma,xtol,xxtol,pi,rvs,x,y,z,AK(2),b1(2),b2(2),
+      real*8 sigma
+Cf2py intent(in) sigma      
+      real*8 AK(2)
+Cf2py intent(in) AK
+      real*8 x,y,z
+Cf2py intent(in) x
+Cf2py intent(in) y
+Cf2py intent(in) z
+      
+      real*8 xtol,xxtol,pi,rvs,b1(2),b2(2),
      1 a0,ra0,rmuf
-      COMPLEX*16 zgrf,zgrt,comega,csigma,ci
+      COMPLEX*16 zgrf
+Cf2py intent(out) zgrf
+      
+      COMPLEX*16 zgrt,comega,csigma,ci
       COMPLEX*16 B(LMDLMD,NCMB),DLM(LMDL,NFM),XMAT(NYLRD,NYLRD,NFM) 
       COMPLEX*16 VEC(LMTT,LMTT,NFM) 
       COMPLEX*16 JL(0:lbess),NL(0:lbess),DJL(0:lbess),DNL(0:lbess)
       COMPLEX*16 ZLM(-LMAX:LMAX),YL(NYLR)
 *
-      REAL*8    AR1(2),AR2(2)       ! 2D DIRECT-LATTICE BASIS VECTORS
+      REAL*8 AR1(2)
+      REAL*8  AR2(2)                    ! 2D DIRECT-LATTICE BASIS VECTORS
+Cf2py intent(in) AR1
+Cf2py intent(in) AR2
 c$$$      common/x1/      ar1,ar2         !direct lattice basis vectors
 c$$$      common/xin/     b1,b2           !reciprocal lattice basis vectors
 c$$$      common/xar/     a0              !unit cell area
@@ -81,6 +96,9 @@ c$$$      AR1(1)=1.d0
 c$$$      AR1(2)=0.d0 
 c$$$      AR2(1)=cos(pi/3.d0)               ! (111) fcc
 c$$$      AR2(2)=cos(pi/6.d0)
+c$$$      write(6,*)'ar2=',ar2
+c$$$      write(6,*)'ar1=',ar1
+      
       A0=ABS(AR1(1)*AR2(2)-AR1(2)*AR2(1))  
       RA0=2.D0*PI/A0  
       B1(1)=-AR1(2)*RA0  
@@ -112,18 +130,28 @@ c      sigma=2.2d0
 c      write(6,*)'Read in the x-component of parallel momentum'
 c      read(5,*) AK(1)
 c      AK(1)=sigma*sin(pi/4.d0)
-      AK(1)=0.0d0
 *
 c      write(6,*)'Read in the y-component of parallel momentum'
 c      read(5,*) AK(2)
-      AK(2)=0.0d0
 *
 *
       rmuf= 0.481186509d0
-      sigma=2.d0*pi*160.d0/(2200.d0*rmuf)
+c$$$      sigma=2.d0*pi*160.d0/(2200.d0*rmuf)
+c$$$      x=0.6d0
+c$$$      y=0.5d0
+c$$$      z=0.001d0
+c$$$      AK(1)=0.0d0
+c$$$      AK(2)=0.0d0
+
       csigma=dcmplx(sigma,0.d0)
 *
+      write(6,*)'sigma=',csigma
+      write(6,*)'ak=',ak
+      write(6,*)'ar1=',ar1
+      write(6,*)'ar2=',ar2
       call dlsumf2in3(lmax,csigma,ak, AR1, AR2, b(1,1))
+      
+      
 *
 *
 cd      nbas=1
@@ -145,15 +173,6 @@ c      call secular(nlb,nbas,inmax2,tmt,vec,ama)
 *
 c      do 100 IST=1,ISTEP
 *
-c      write(6,*)'Read in the x-component of R'
-c      read(5,*) x
-       x=0.6d0
-c      write(6,*)'Read in the y-component of R'
-c      read(5,*) y
-       y=0.5d0
-c      write(6,*)'Read in the z-component of R'
-c      read(5,*) z
-       z=0.001d0
 *
       rvs=sqrt(x**2+y**2+z**2)
 *
@@ -200,13 +219,19 @@ C--------/---------/---------/---------/---------/---------/---------/--
           ilm=ilm+1
           lmt=ilb**2+ilb
           zgrt=zgrt+B(ILM,IB)*yl(lmt+m+1)
+          write(6,*)'b = ',yl(lmt+m+1)
+
         enddo
 *
       zgrf=zgrf+zgrt*jl(ilb)
+      write(6,*)'zgrf = ',zgrf
+
 *
  5    CONTINUE
 *
       zgrf=nl(0)/4.d0+zgrf
+      write(6,*)'nl0 = ',nl(0)
+
 *
       write(6,*)'Green function=',zgrf
 *

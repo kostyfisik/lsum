@@ -45,7 +45,7 @@ lsum: $(OBJ)
 
 # 
 pydlm: 
-	f2py3 -c $(PYSRC) -m dlmsum
-	# f2py3 -c $(PYSRC) -m dlmsum --opt='-O3'
+	#f2py3 -c $(PYSRC) -m dlmsum
+	f2py3 -c $(PYSRC) -m dlmsum --opt='-O0'
         
 #***************************************************************

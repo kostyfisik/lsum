@@ -38,17 +38,21 @@ C
 C  
 C ..  SCALAR ARGUMENTS  ..  
 C  
-      INTEGER, intent(in) ::     LMAX  
+      INTEGER LMAX  
+      COMPLEX*16 KAPPA
+c$$$      INTEGER, intent(in) ::     LMAX  
+c$$$      COMPLEX*16, intent(in) ::  KAPPA  
       REAL*8     EMACH  
-      COMPLEX*16, intent(in) ::  KAPPA  
 C  
 C ..  ARRAY ARGUMENTS  ..  
 C  
 C     MOMENTUM PARALLEL TO THE SURFACE,
 C     REDUCED TO THE 1ST BRILLOUIN ZONE
-      REAL*8, intent(in) ::   AK(2) 
+c$$$      REAL*8, intent(in) ::   AK(2) 
+      REAL*8  AK(2) 
 C     2D DIRECT-LATTICE BASIS VECTORS
-      REAL*8, intent(in) ::   AR1(2),AR2(2)
+c$$$      REAL*8, intent(in) ::   AR1(2),AR2(2)
+      REAL*8 AR1(2),AR2(2)
 C  
 C ..  LOCAL SCALARS  ..  
 C 
@@ -61,10 +65,11 @@ C
       COMPLEX*16 GK,GKK,SD  
 C  
 C ..  LOCAL ARRAYS  ..  
-C  
+C
       REAL*8     DENOM(NDEND),R(2),B1(2),B2(2),AKPT(2),FAC(4*LMAXD+1)  
       COMPLEX*16 GKN(LMAX1D),AGK(2*LMAXD+1),XPM(2*LMAXD+1),PREF(LM1SQD)  
-      COMPLEX*16, intent(out) ::  DLM(LMDLMD)  
+c$$$      COMPLEX*16, intent(out) ::  DLM(LMDLMD)  
+      COMPLEX*16 DLM(LMDLMD)  
 C  
 C ..  ARRAYS IN COMMON  ..  
 C  
