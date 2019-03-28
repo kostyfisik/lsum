@@ -25,14 +25,20 @@ CFLAGS =  -g  -C
 # readmat.f mediumn.f sordalc.f znsrefind.f zartan.f
 
 #      object files
-OBJ = beschb.o  bess.o  bessik.o  bessjy.o  dlsumf2in3.o  gff2in3.o\
-gnzbess.o chebev.o zbessf.o
+# OBJ = beschb.o  bess.o  bessik.o  bessjy.o  dlsumf2in3.o  gff2in3.o\
+# gnzbess.o chebev.o zbessf.o
+
+ORIGOBJ = dlsumf2in3-orig.o  gff2in3-orig.o bessjy.o bessik.o beschb.o\
+zsphar.o gncbess.o chebev.o
+
+# PYSRC = dlsumf2in3.f
 
 PYSRC = beschb.f  bess.f  bessik.f  bessjy.f  chebev.f  dlsumf2in3.f\
-gff2in3.f  gnzbess.f  zbessf.f
+  gff2in3.f  gnzbess.f  zbessf.f zsphar.f rsphar.f
 
 #      executable files
 
+.PRONY: clean
 .SUFFIXES: .ic .o .c
 .f.o:
 	$(CC) $(CFLAGS) $(NAME) -c $< 
@@ -42,6 +48,9 @@ all:     pydlm
 lsum: $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o lsum $(LFLAGS) 
 
+lsum-orig: $(ORIGOBJ)
+	$(CC) $(CFLAGS) $(ORIGOBJ) -o lsum-orig $(LFLAGS) 
+
 
 # 
 pydlm: 
@@ -49,3 +58,5 @@ pydlm:
 	f2py3 -c $(PYSRC) -m dlmsum --opt='-O0'
         
 #***************************************************************
+clean:
+	rm *.o

@@ -22,6 +22,18 @@ C ..  PARAMETER STATEMENTS  ..
 C  
       INTEGER   LMAXD,LMAX1D,NDEND,LM1SQD,LMDLMD  
       PARAMETER (LMAXD=14,LMAX1D=LMAXD+1)  
+      PARAMETER (LM1SQD=LMAX1D*LMAX1D,NDEND=1240)  
+
+c$$$      PARAMETER (LMAXD=22,LMAX1D=LMAXD+1)  
+c$$$      PARAMETER (LM1SQD=LMAX1D*LMAX1D,NDEND=4324)  
+
+c$$$      PARAMETER (LMAXD=30,LMAX1D=LMAXD+1)  
+c$$$      PARAMETER (LM1SQD=LMAX1D*LMAX1D,NDEND=10416)  
+
+c$$$      PARAMETER (LMAXD=50,LMAX1D=LMAXD+1)  
+c$$$      PARAMETER (LM1SQD=LMAX1D*LMAX1D,NDEND=45526)  
+      
+      PARAMETER (LMDLMD=LMAX1D*(2*LMAXD+1))                       
 *
 *  LMAXD  ==>   NELMD  ==>   NDEND
 *    4            809          55
@@ -32,27 +44,32 @@ C
 *    9          22693         385
 *   10          36124         506
 *   14         165152        1240
-* 
-      PARAMETER (LM1SQD=LMAX1D*LMAX1D,NDEND=1240)  
-      PARAMETER (LMDLMD=LMAX1D*(2*LMAXD+1))                       
+*   22		             4324
+*   30		            10416
+*   40		            23821
+*   50		            45526
+
+
+                     
+*     
 C  
 C ..  SCALAR ARGUMENTS  ..  
 C  
-      INTEGER LMAX  
-      COMPLEX*16 KAPPA
-c$$$      INTEGER, intent(in) ::     LMAX  
-c$$$      COMPLEX*16, intent(in) ::  KAPPA  
+c$$$      INTEGER LMAX  
+c$$$      COMPLEX*16 KAPPA
+      INTEGER, intent(in) ::     LMAX  
+      COMPLEX*16, intent(in) ::  KAPPA  
       REAL*8     EMACH  
 C  
 C ..  ARRAY ARGUMENTS  ..  
 C  
 C     MOMENTUM PARALLEL TO THE SURFACE,
 C     REDUCED TO THE 1ST BRILLOUIN ZONE
-c$$$      REAL*8, intent(in) ::   AK(2) 
-      REAL*8  AK(2) 
+      REAL*8, intent(in) ::   AK(2) 
+c$$$      REAL*8  AK(2) 
 C     2D DIRECT-LATTICE BASIS VECTORS
-c$$$      REAL*8, intent(in) ::   AR1(2),AR2(2)
-      REAL*8 AR1(2),AR2(2)
+      REAL*8, intent(in) ::   AR1(2),AR2(2)
+c$$$      REAL*8 AR1(2),AR2(2)
 C  
 C ..  LOCAL SCALARS  ..  
 C 
@@ -68,8 +85,8 @@ C ..  LOCAL ARRAYS  ..
 C
       REAL*8     DENOM(NDEND),R(2),B1(2),B2(2),AKPT(2),FAC(4*LMAXD+1)  
       COMPLEX*16 GKN(LMAX1D),AGK(2*LMAXD+1),XPM(2*LMAXD+1),PREF(LM1SQD)  
-c$$$      COMPLEX*16, intent(out) ::  DLM(LMDLMD)  
-      COMPLEX*16 DLM(LMDLMD)  
+      COMPLEX*16, intent(out) ::  DLM(LMDLMD)  
+c$$$      COMPLEX*16 DLM(LMDLMD)  
 C  
 C ..  ARRAYS IN COMMON  ..  
 C  
@@ -89,6 +106,17 @@ C ..  DATA STATEMENTS  ..
 C  
       DATA CZERO/(0.D0,0.D0)/,CI/(0.D0,1.D0)/,PI/3.14159265358979D0/  
      & ,EMACH/1.D-8/ 
+c$$$      integer qwi, qwn, sum
+c$$$      qwn=10
+c$$$      sum = 0
+c$$$      
+c$$$      do 110 qwi = 1, qwn
+c$$$         sum = sum + qwi
+c$$$         write(6,*) 'i =', qwi
+c$$$         write(6,*) 'sum =', sum
+c$$$  110  continue
+c$$$      write(6,*) LMAX,KAPPA,AK, AR1,AR2
+
 C***********************************************************************
       IF(LMAX.GT.LMAXD)  
      &   STOP 'FROM XMAT: LAMX.GT.MIN0(7,LMAXD)'  
@@ -126,8 +154,8 @@ C
       ALPHA=TV/(4.0D0*PI)*KAPSQ            
       AL=ABS(ALPHA)                        !Ewald parameter
       IF(EXP(AL)*EMACH-5.0D-5)3,3,2  
-   2  AL=LOG(5.0D-5/EMACH)  
-   3  ALPHA=DCMPLX(AL,0.0D0)  
+ 2    AL=LOG(5.0D-5/EMACH)  
+ 3    ALPHA=DCMPLX(AL,0.0D0)  
       RTA=SQRT(ALPHA) 
 C*********************************************************************** 
 C      F A C T O R I A L S    A N D   DLM   I N I T I A L I Z A T I O N
@@ -140,13 +168,15 @@ C
       FAC(1)=1.0D0  
       II=4*LMAX 
       DO 4 I=1,II  
-       FAC(I+1)=DBLE(I)*FAC(I)         !FAC(N)=(N-1)!
-  4   CONTINUE
+      FAC(I+1)=DBLE(I)*FAC(I) !FAC(N)=(N-1)!
+ 4    CONTINUE
       NNDLM=(LMAX+1)*(2*LMAX+1)        !The number of DLM \neq 0  
         
-      DO 5 I=1,NNDLM  
-       DLM(I)=CZERO 
-  5   CONTINUE 
+c$$$      DO 5 I=1,NNDLM
+      DO 5 I=1, LMDLMD
+         DLM(I)=CZERO
+c$$$         write(6,*)'dlm=',dlm(I)
+ 5    CONTINUE 
 C  
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                             DLM1
@@ -163,31 +193,33 @@ C
       CF=CI/KAPPA  
 *
       DO 8 L=1,LL2       !LL2=2*LMAX+1
-       AP1=AP1/2.0D0     !=-1.d0/(TV*2.0D0**(l-1)) 
-       AP2=AP2+2.0D0     !=2*L-1
-       CP=CF  
-       MM=1  
-       IF(MOD  (L,2))7,6,7  
-   6   MM=2  
-       CP=CI*CP  
-   7   NN=(L-MM)/2+2  
+      AP1=AP1/2.0D0     !=-1.d0/(TV*2.0D0**(l-1)) 
+      AP2=AP2+2.0D0             !=2*L-1
+      CP=CF  
+      MM=1  
+      IF(MOD  (L,2))7,6,7  
+ 6    MM=2  
+      CP=CI*CP  
+ 7    NN=(L-MM)/2+2  
 *
-        DO 8 M=MM,L,2  
-        J1=L+M-1  
-        J2=L-M+1  
-        AP=AP1*SQRT(AP2*FAC(J1)*FAC(J2))  
-        PREF(KK)=AP*CP  
-        CP=-CP  
-        KK=KK+1  
-        NN=NN-1  
+      DO 8 M=MM,L,2  
+      J1=L+M-1  
+      J2=L-M+1  
+      AP=AP1*SQRT(AP2*FAC(J1)*FAC(J2))  
+      PREF(KK)=AP*CP  
+      CP=-CP  
+      KK=KK+1  
+      NN=NN-1  
 *
-         DO 8 I=1,NN  
-         I1=I  
-         I2=NN-I+1  
-         I3=NN+M-I  
-         DENOM(K)=1.0D0/(FAC(I1)*FAC(I2)*FAC(I3))  
-         K=K+1 
-  8   CONTINUE 
+      DO 8 I=1,NN  
+      I1=I  
+      I2=NN-I+1  
+      I3=NN+M-I  
+      DENOM(K)=1.0D0/(FAC(I1)*FAC(I2)*FAC(I3))  
+      K=K+1 
+ 8    CONTINUE
+c$$$      write(6,*)'K=',K
+
 C
 C     THE  RECIPROCAL  LATTICE IS  DEFINED BY  B1, B2. THE  SUMMATION  
 C     BEGINS WITH THE ORIGIN POINT OF THE LATTICE, AND  CONTINUES IN  
@@ -199,7 +231,7 @@ C
       TEST1=1.0D6  
       II=1  
       N1=-1  
-   9  N1=N1+1  
+ 9    N1=N1+1  
       NA=N1+N1+II  
       AN1=DBLE(N1)  
       AN2=-AN1-1.0D0  
@@ -231,7 +263,7 @@ C
       GPSQ=KAPSQ-ACSQ 
       IF(ABS(GPSQ).LT.EMACH*EMACH)   THEN 
       WRITE(7,100) 
-  100 FORMAT(13X,'FATAL ERROR FROM XMAT:'/3X,'GPSQ IS TOO SMALL.' 
+ 100  FORMAT(13X,'FATAL ERROR FROM XMAT:'/3X,'GPSQ IS TOO SMALL.' 
      & /3X,'GIVE A SMALL BUT NONZERO VALUE FOR "EPSILON"'/3X,  
      & 'IN THE DATA STATEMENT OF THE MAIN PROGRAM.' 
      & /3X,'THIS DEFINES A SMALL IMAGINARY PART' 
@@ -244,16 +276,16 @@ C
       GK=CZERO  
       GKK=DCMPLX(1.0D0,0.0D0)  
       IF(AC-EMACH)11,11,10  
-  10  XPK=DCMPLX(AKPT(1)/AC,AKPT(2)/AC)  
+ 10   XPK=DCMPLX(AKPT(1)/AC,AKPT(2)/AC)  
       GK=AC/KAPPA  
       GKK=GPSQ/KAPSQ  
-  11  XPM(1)=DCMPLX(1.0D0,0.0D0)  
+ 11   XPM(1)=DCMPLX(1.0D0,0.0D0)  
       AGK(1)=DCMPLX(1.0D0,0.0D0)  
 *
       DO 12 I=2,LL2  
       XPM(I)=XPM(I-1)*XPK  
       AGK(I)=AGK(I-1)*GK  
-  12  CONTINUE 
+ 12   CONTINUE 
 *
       CF=KAPPA/GP  
       ZZ=-ALPHA*GKK  
@@ -272,7 +304,7 @@ C
       GAM=(GAM-BT)/B 
       CF=CF*GKK  
       GKN(I)=CF*CX*GAM  
-  13  CONTINUE 
+ 13   CONTINUE 
 C  
 C     THE CONTRIBUTION TO THE SUM DLM1 FOR A PARTICULAR  
 C     RECIPROCAL LATTICE VECTOR IS NOW ACCUMULATED INTO  
@@ -284,32 +316,32 @@ C
       DO 19 L=1,LL2  
       MM=1  
       IF(MOD  (L,2))15,14,15  
-  14  MM=2  
-  15  N=(L*L+MM)/2  
+ 14   MM=2  
+ 15   N=(L*L+MM)/2  
       NN=(L-MM)/2+2  
       DO 19 M=MM,L,2  
       ACC=CZERO  
       NN=NN-1  
       IL=L  
 *
-       DO 16 I=1,NN  
-       ACC=ACC+DENOM(K)*AGK(IL)*GKN(I)  
-       IL=IL-2  
-       K=K+1  
-  16   CONTINUE 
-       ACC=PREF(KK)*ACC  
-       IF(AC-1.0D-6)17,17,165  
- 165   DLM(N)=DLM(N)+ACC/XPM(M)  
-       IF(M-1)17,18,17  
-  17   NM=N-M+1  
-       DLM(NM)=DLM(NM)+ACC*XPM(M)  
-  18   KK=KK+1  
-       N=N+1  
-  19  CONTINUE 
+      DO 16 I=1,NN  
+      ACC=ACC+DENOM(K)*AGK(IL)*GKN(I)  
+      IL=IL-2  
+      K=K+1  
+ 16   CONTINUE 
+      ACC=PREF(KK)*ACC  
+      IF(AC-1.0D-6)17,17,165  
+ 165  DLM(N)=DLM(N)+ACC/XPM(M)  
+      IF(M-1)17,18,17  
+ 17   NM=N-M+1  
+      DLM(NM)=DLM(NM)+ACC*XPM(M)  
+ 18   KK=KK+1  
+      N=N+1  
+ 19   CONTINUE 
 *
       IF(II)21,21,22  
-  21  CONTINUE  
-  22  II=0  
+ 21   CONTINUE  
+ 22   II=0  
 C  
 C     AFTER EACH STEP OF THE SUMMATION A TEST ON THE  
 C     CONVERGENCE  OF THE  ELEMENTS OF  DLM IS  MADE  
@@ -319,17 +351,17 @@ C
       DO 23 I=1,NNDLM  
       DNORM=ABS(DLM(I))  
       TEST2=TEST2+DNORM*DNORM  
-  23  CONTINUE 
+ 23   CONTINUE 
 *
       TEST=ABS((TEST2-TEST1)/TEST1) 
       TEST1=TEST2  
       IF(TEST-0.001D0)27,27,24  
-  24  IF(N1-10)9,25,25  
-  25  WRITE(16,26)N1  
-  26  FORMAT(29H**DLM1,S NOT CONVERGED BY N1=,I2)  
+ 24   IF(N1-10)9,25,25  
+ 25   WRITE(16,26)N1  
+ 26   FORMAT(29H**DLM1,S NOT CONVERGED BY N1=,I2)  
       GOTO 285  
-  27  WRITE(16,28)N1  
-  28  FORMAT(25H DLM1,S CONVERGED BY N1 =,I2)  
+ 27   WRITE(16,28)N1  
+ 28   FORMAT(25H DLM1,S CONVERGED BY N1 =,I2)  
 C     WRITE(16,250)DLM  
 C250  FORMAT(5H0DLM1,//,45(2E13.5,/))  
 C
@@ -347,9 +379,9 @@ C
       CP=CF  
       MM=1  
       IF(MOD  (L,2))30,29,30  
-  29  MM=2  
+ 29   MM=2  
       CP=-CI*CP  
-  30  J1=(L-MM)/2+1  
+ 30   J1=(L-MM)/2+1  
       J2=J1+MM-1  
       IN=J1+L-2  
       AP2=((-1.0D0)**IN)*AP1  
@@ -361,7 +393,7 @@ C
       AP2=-AP2  
       CP=-CP  
       KK=KK+1  
-  31  CONTINUE 
+ 31   CONTINUE 
 *
 C  
 C     THE SUMMATION PROCEEDS IN STEPS OF 8*N1 LATTICE POINTS  
@@ -370,7 +402,7 @@ C     R=THE CURRENT LATTICE VECTOR IN THE SUM
 C     AR=MOD(R)  
 C  
       N1=0  
-  32  N1=N1+1  
+ 32   N1=N1+1  
       NA=N1+N1  
       AN1=DBLE(N1)  
       AN2=-AN1-1.0D0 
@@ -378,18 +410,18 @@ C
       DO 40 I1=1,NA  
       AN2=AN2+1.0D0  
 *
-       DO 40 I2=1,4  
-       AN=AN1  
-       AN1=-AN2  
-       AN2=AN  
-       R(1)=AN1*AR1(1)+AN2*AR2(1)  
-       R(2)=AN1*AR1(2)+AN2*AR2(2)  
-       AR=SQRT(R(1)*R(1)+R(2)*R(2)) 
-       XPK=DCMPLX(R(1)/AR,R(2)/AR)  
-       XPM(1)=DCMPLX(1.0D0,0.0D0)  
-        DO 33 I=2,LL2  
-        XPM(I)=XPM(I-1)*XPK  
-  33    CONTINUE 
+      DO 40 I2=1,4  
+      AN=AN1  
+      AN1=-AN2  
+      AN2=AN  
+      R(1)=AN1*AR1(1)+AN2*AR2(1)  
+      R(2)=AN1*AR1(2)+AN2*AR2(2)  
+      AR=SQRT(R(1)*R(1)+R(2)*R(2)) 
+      XPK=DCMPLX(R(1)/AR,R(2)/AR)  
+      XPM(1)=DCMPLX(1.0D0,0.0D0)  
+      DO 33 I=2,LL2  
+      XPM(I)=XPM(I-1)*XPK  
+ 33   CONTINUE 
       AD=AK(1)*R(1)+AK(2)*R(2)  
       SD=EXP(-AD*CI)  
 C  
@@ -423,30 +455,31 @@ C
       CP=RTA  
       CF=DCMPLX(1.0D0,0.0D0)  
 *
-       DO 39 L=1,LL2  
-       MM=1  
-       IF(MOD  (L,2))35,34,35  
-  34   MM=2  
-  35   N=(L*L+MM)/2 
+      DO 39 L=1,LL2  
+      MM=1  
+      IF(MOD  (L,2))35,34,35  
+ 34   MM=2  
+ 35   N=(L*L+MM)/2 
 * 
-        DO 38 M=MM,L,2  
-        ACC=PREF(KK)*U2*CF*SD  
-        DLM(N)=DLM(N)+ACC/XPM(M)  
-        IF(M-1)36,37,36  
-  36    NM=N-M+1  
-        DLM(NM)=DLM(NM)+ACC*XPM(M)  
-  37    KK=KK+1  
-        N=N+1  
-  38    CONTINUE 
+      DO 38 M=MM,L,2  
+      ACC=PREF(KK)*U2*CF*SD  
+      DLM(N)=DLM(N)+ACC/XPM(M)  
+      IF(M-1)36,37,36  
+ 36   NM=N-M+1  
+      DLM(NM)=DLM(NM)+ACC*XPM(M)  
+c$$$      write(6,*)'dlm=',dlm(NM), L, M
+ 37   KK=KK+1  
+      N=N+1  
+ 38   CONTINUE 
 *
-       AL=AL+1.0D0  
-       CP=CP/ALPHA  
-       U=(AL*U2-U1+CP*XPA)/KNSQ  
-       U1=U2  
-       U2=U  
-       CF=KANT*CF  
-  39   CONTINUE 
-  40  CONTINUE  
+      AL=AL+1.0D0  
+      CP=CP/ALPHA  
+      U=(AL*U2-U1+CP*XPA)/KNSQ  
+      U1=U2  
+      U2=U  
+      CF=KANT*CF  
+ 39   CONTINUE 
+ 40   CONTINUE  
 C  
 C     AFTER EACH STEP OF THE SUMMATION A TEST ON THE  
 C     CONVERGENCE OF THE ELEMENTS OF DLM IS MADE  
@@ -456,17 +489,17 @@ C
       DO 41 I=1,NNDLM  
       DNORM=ABS(DLM(I))  
       TEST2=TEST2+DNORM*DNORM  
-  41  CONTINUE 
+ 41   CONTINUE 
 *
       TEST=ABS((TEST2-TEST1)/TEST1)  
       TEST1=TEST2  
       IF(TEST-0.001D0)45,45,42  
-  42  IF(N1-10)32,43,43  
-  43  WRITE(16,44)N1  
-  44  FORMAT(31H0**DLM2,S NOT CONVERGED BY N1 =,I2)  
+ 42   IF(N1-10)32,43,43  
+ 43   WRITE(16,44)N1  
+ 44   FORMAT(31H0**DLM2,S NOT CONVERGED BY N1 =,I2)  
       GOTO 465  
-  45  WRITE(16,46)N1  
-  46  FORMAT(24H DLM2,S CONVERGED BY N1=,I2)  
+ 45   WRITE(16,46)N1  
+ 46   FORMAT(24H DLM2,S CONVERGED BY N1=,I2)  
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                              DLM3 
@@ -491,11 +524,15 @@ C
       DO 47 M=2,L,2  
       DLM(N)=-DLM(N)  
       N=N+1  
-  47  CONTINUE 
+ 47   CONTINUE 
 *
 C     WRITE(16,251) DLM  
 C 251 FORMAT(15H0DLM1+DLM2+DLM3,//45(2E13.5,/))  
 C  
+c$$$      DO 144 I=1, LMDLMD
+c$$$         write(6,*)'dlm=',dlm(I)
+c$$$ 144  CONTINUE 
+c$$$      write(6,*) dlm
 
       RETURN  
       END  
@@ -538,58 +575,58 @@ C
       EPS=5.0D0*EMACH  
       API=1.0D0/PI  
       IF(ABS(Z))2,1,2  
-   1  CERF=CONE  
+ 1    CERF=CONE  
       GOTO 29  
 C  
 C     THE ARGUMENT IS TRANSLATED TO THE FIRST QUADRANT FROM  
 C     THE NN_TH QUADRANT, BEFORE THE METHOD FOR THE FUNCTION  
 C     EVALUATION IS CHOSEN  
 C  
-   2  X=DBLE(Z)  
+ 2    X=DBLE(Z)  
       Y=DIMAG(Z)  
       YY=Y  
       IF(Y)6,3,3  
-   3  IF(X)5,4,4  
-   4  ZZ=Z  
+ 3    IF(X)5,4,4  
+ 4    ZZ=Z  
       NN=1  
       GOTO 9  
-   5  ZZ=DCMPLX(-X,Y)  
+ 5    ZZ=DCMPLX(-X,Y)  
       NN=2  
       GOTO 9  
-   6  YY=-Y  
+ 6    YY=-Y  
       IF(X)7,8,8  
-   7  ZZ=-Z  
+ 7    ZZ=-Z  
       NN=3  
       GOTO 9  
-   8  ZZ=DCMPLX(X,-Y)  
+ 8    ZZ=DCMPLX(X,-Y)  
       NN=4  
-   9  ZZS=ZZ*ZZ  
+ 9    ZZS=ZZ*ZZ  
       XZZS=EXP(-ZZS)  
       ABSZ=ABS(ZZ)  
       IF(ABSZ-10.0D0)10,10,23  
-  10  IF(YY-1.0D0)11,12,12  
-  11  IF(ABSZ-4.0D0)13,18,18  
-  12  IF(ABSZ-1.0D0)13,18,18  
+ 10   IF(YY-1.0D0)11,12,12  
+ 11   IF(ABSZ-4.0D0)13,18,18  
+ 12   IF(ABSZ-1.0D0)13,18,18  
 C  
 C     POWER SERIES(SEE ABRAMOWITZ AND STEGUN HANDBOOK OF  
 C     MATHEMATICAL FUNCTIONS, P297)  
 C  
-  13  Q=1.0D0  
+ 13   Q=1.0D0  
       FACTN=-1.0D0  
       FACTD=1.0D0  
       TERM1=ZZ  
       SUM=ZZ  
-  14  DO 15 N=1,5  
+ 14   DO 15 N=1,5  
       FACTN=FACTN+2.0D0  
       FACTD=FACTD+2.0D0  
       FACT=FACTN/(Q*FACTD)  
       TERM1=FACT*ZZS*TERM1  
       SUM=SUM+TERM1  
-  15  Q=Q+1.0D0  
+ 15   Q=Q+1.0D0  
       ABTERM=ABS(TERM1)  
       IF(ABTERM-EPS)17,16,16  
-  16  IF(Q-100.0D0)14,17,17  
-  17  FACT=2.0D0*SQRT(API)  
+ 16   IF(Q-100.0D0)14,17,17  
+ 17   FACT=2.0D0*SQRT(API)  
       SUM=FACT*CI*SUM  
       CER=XZZS+XZZS*SUM  
       GOTO 24  
@@ -600,14 +637,14 @@ C     RECURRENCE RELATION IN N. SEE FADDEEVA AND TERENTIEV
 C     (TABLES OF VALUES OF W(Z) FOR COMPLEX ARGUMENTS, PERGAMON  
 C       N.Y. 1961)  
 C  
-  18  TERM2=DCMPLX(1.D6,0.0D0)  
+ 18   TERM2=DCMPLX(1.D6,0.0D0)  
       Q=1.0D0  
       H1=CONE  
       H2=2.0D0*ZZ  
       U1=CZERO  
       RTPI=2.0D0*SQRT(PI)  
       U2=DCMPLX(RTPI,0.0D0)  
-  19  TERM1=TERM2  
+ 19   TERM1=TERM2  
       DO 20 N=1,5  
       H3=H2*ZZ-Q*H1  
       U3=U2*ZZ-Q*U1  
@@ -615,28 +652,30 @@ C
       H2=2.0D0*H3  
       U1=U2  
       U2=2.0D0*U3  
-  20  Q=Q+1.0D0  
+ 20   Q=Q+1.0D0  
       TERM2=U3/H3  
       TEST=ABS((TERM2-TERM1)/TERM1)  
       IF(TEST-EPS)22,21,21  
-  21  IF(Q-60.0D0)19,19,13  
-  22  CER=API*CI*TERM2  
+ 21   IF(Q-60.0D0)19,19,13  
+ 22   CER=API*CI*TERM2  
       GOTO 24  
 C  
 C     ASYMPTOTIC SERIES: SEE ABRAMOWITZ AND STEGUN, P328  
 C  
-  23  CER=0.5124242D0/(ZZS-0.2752551D0)+0.05176536D0/(ZZS-2.724745D0)  
+ 23   CER=0.5124242D0/(ZZS-0.2752551D0)+0.05176536D0/(ZZS-2.724745D0)  
       CER=CI*ZZ*CER  
 C  
 C     SYMMETRY RELATIONS ARE NOW USED TO TRANSFORM THE FUNCTION  
 C     BACK TO QUADRANT NN  
 C  
-  24  GOTO(28,26,27,25),NN  
-  25  CER=2.0D0*XZZS-CER  
-  26  CERF=DCONJG(CER)  
+ 24   GOTO(28,26,27,25),NN  
+ 25   CER=2.0D0*XZZS-CER  
+ 26   CERF=DCONJG(CER)  
       GOTO 29  
-  27  CERF=2.0D0*XZZS-CER  
+ 27   CERF=2.0D0*XZZS-CER  
       GOTO 29  
-  28  CERF=CER  
-  29  RETURN  
+ 28   CERF=CER  
+ 29   RETURN  
       END  
+
+      

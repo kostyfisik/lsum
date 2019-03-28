@@ -145,11 +145,11 @@ c$$$      AK(2)=0.0d0
 
       csigma=dcmplx(sigma,0.d0)
 *
-      write(6,*)'sigma=',csigma
-      write(6,*)'ak=',ak
-      write(6,*)'ar1=',ar1
-      write(6,*)'ar2=',ar2
-      call dlsumf2in3(lmax,csigma,ak, AR1, AR2, b(1,1))
+c$$$      write(6,*)'sigma=',csigma
+c$$$      write(6,*)'ak=',ak
+c$$$      write(6,*)'ar1=',ar1
+c$$$      write(6,*)'ar2=',ar2
+      call dlsumf2in3(lmax,csigma,ak, AR1, AR2, b)
       
       
 *
@@ -179,8 +179,9 @@ c      do 100 IST=1,ISTEP
       YL(1)=1.d0/sqrt(4.d0*pi)
 *
       do l=1,lmax
+c$$$      write(6,*)'l = ',l
       lmt=l**2
-C      CALL ZSPHAR(L,X,Y,Z,ZLM)
+      CALL ZSPHAR(L,X,Y,Z,ZLM)
 C--------------------------------------------------------------------
 * ==============
 *  This routine returns complex spherical harmonics in the 
@@ -215,25 +216,27 @@ C--------/---------/---------/---------/---------/---------/---------/--
       DO 5 ILB=0,LBESS   ! summation over l's
       zgrt=(0.d0,0.d0)
 *
-        do m=-ilb,ilb,2
-          ilm=ilm+1
-          lmt=ilb**2+ilb
-          zgrt=zgrt+B(ILM,IB)*yl(lmt+m+1)
-          write(6,*)'b = ',yl(lmt+m+1)
-
-        enddo
+      do m=-ilb,ilb,2
+      ilm=ilm+1
+      lmt=ilb**2+ilb
+      zgrt=zgrt+B(ilm,IB)*yl(lmt+m+1)
+      write(6,*)'b = ',B(ilm,IB), ILB, m, "yl=", yl(lmt+m+1)
+      
+      enddo
 *
+      write(6,*)'asr ',B(ilm,IB),ILM,IB, ILB, jl(ilb)
       zgrf=zgrf+zgrt*jl(ilb)
-      write(6,*)'zgrf = ',zgrf
+c$$$      write(6,*)'zgrf = ',zgrf
 
 *
  5    CONTINUE
 *
+      write(6,*)'Dsum=',zgrf
       zgrf=nl(0)/4.d0+zgrf
-      write(6,*)'nl0 = ',nl(0)
+c$$$      write(6,*)'nl0 = ',nl(0)/4.d0
 
 *
-      write(6,*)'Green function=',zgrf
+c$$$      write(6,*)'Green function=',zgrf
 *
  100  CONTINUE
 *
